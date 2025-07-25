@@ -1,37 +1,31 @@
 #pragma once
 
-#include "CauldronZero/Config/Config.h"
+#include "CauldronZero/Macros.h"
 #include "ll/api/mod/NativeMod.h"
 
 namespace CauldronZero {
 
-class Entry {
+class CZ_API Entry {
 
 public:
     static Entry& getInstance();
 
-    Entry() : mSelf(*ll::mod::NativeMod::current()) {}
+    Entry(const Entry&)            = delete;
+    Entry(Entry&&)                 = delete;
+    Entry& operator=(const Entry&) = delete;
+    Entry& operator=(Entry&&)      = delete;
 
-    [[nodiscard]] ll::mod::NativeMod& getSelf() const { return mSelf; }
+    [[nodiscard]] ll::mod::NativeMod& getSelf() const;
 
-    /// @return True if the mod is loaded successfully.
     bool load();
-
-    /// @return True if the mod is enabled successfully.
     bool enable();
-
-    /// @return True if the mod is disabled successfully.
     bool disable();
 
-    // TODO: Implement this method if you need to unload the mod.
-    // /// @return True if the mod is unloaded successfully.
-    // bool unload();
-
 private:
-    ll::mod::NativeMod& mSelf;
-    Config              mConfig;
+    Entry();
+    ~Entry();
 
-    void setupConfig();
+    ll::mod::NativeMod& mSelf;
 };
 
 } // namespace CauldronZero

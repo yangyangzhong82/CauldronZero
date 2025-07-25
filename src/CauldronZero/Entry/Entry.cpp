@@ -1,8 +1,13 @@
-#include "CauldronZero/Entry/Entry.h"
-#include "CauldronZero/Utils/LogLevelHelper.h"
+#include "Entry.h"
+#include "CauldronZero/Global.h"
+#include "CauldronZero/events/world/block/FireBlockEvent.h"
+#include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
+#include "CauldronZero/events/world/actor/ActorChangeDimensionEvent.h" // Added for ActorChangeDimensionHook
+#include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" // Added for PlayerChangeDimensionHook
+#include "CauldronZero/events/world/ExplosionEvent.h"
 #include "CauldronZero/logger.h"
 #include "ll/api/mod/RegisterHelper.h"
-
+#include "CauldronZero/test/event.h"
 namespace CauldronZero {
 
 Entry& Entry::getInstance() {
@@ -10,51 +15,62 @@ Entry& Entry::getInstance() {
     return instance;
 }
 
-void Entry::setupConfig() {
-    auto configFilePath = getSelf().getModDir() / "config.json";
+Entry::Entry() : mSelf(*ll::mod::NativeMod::current()) {}
 
-    if (!std::filesystem::exists(configFilePath)) {
-        logger.info("Config file not found, creating a default one at: {}", configFilePath.string());
-        mConfig.set("log_level", std::string("Info"));
-        mConfig.save(configFilePath.string());
-    } else {
-        if (!mConfig.load(configFilePath.string())) {
-            logger.error("Failed to load config file, please check its format.");
-        }
-    }
+Entry::~Entry() = default;
 
-    auto updateLogLevel = [this] {
-        auto                                                  levelStr = mConfig.get<std::string>("log_level", "Info");
-        if (auto it = getLogLevelMap().find(levelStr); it != getLogLevelMap().end()) {
-            logger.setLevel(it->second);
-            logger.info("Logger level set to {}.", levelStr);
-        } else {
-            logger.warn("Invalid log level '{}' in config, defaulting to Info.", levelStr);
-            logger.setLevel(ll::io::LogLevel::Info);
-        }
-    };
-
-    updateLogLevel();
-    mConfig.watch([this, updateLogLevel] { updateLogLevel(); });
-}
-
+ll::mod::NativeMod& Entry::getSelf() const { return mSelf; }
 
 bool Entry::load() {
     getSelf().getLogger().debug("Loading...");
-    setupConfig();
-    // Code for loading the mod goes here.
+    Global::getInstance().load();
     return true;
 }
 
 bool Entry::enable() {
     getSelf().getLogger().debug("Enabling...");
-    // Code for enabling the mod goes here.
+    if (Global::getInstance().getConfig().get<bool>("features.fire_spread_control.enabled", true)) {
+        event::registerFireBlockEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.item_frame_attack_hook.enabled", true)) {
+        event::registerFrameBlockattackEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.item_frame_use_hook.enabled", true)) {
+        event::registerFrameBlockuseEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.actor_change_dimension_hook.enabled", true)) {
+        event::registerActorChangeDimensionEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.player_change_dimension_hook.enabled", true)) {
+        event::registerPlayerChangeDimensionHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.explosion_hook.enabled", true)) {
+        event::registerExplosionEventHooks();
+    }
+    event::registerTestEventListeners();
     return true;
 }
 
 bool Entry::disable() {
     getSelf().getLogger().debug("Disabling...");
-    // Code for disabling the mod goes here.
+    if (Global::getInstance().getConfig().get<bool>("features.fire_spread_control.enabled", true)) {
+        event::unregisterFireBlockEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.item_frame_attack_hook.enabled", true)) {
+        event::unregisterFrameBlockattackEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.item_frame_use_hook.enabled", true)) {
+        event::unregisterFrameBlockuseEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.actor_change_dimension_hook.enabled", true)) {
+        event::unregisterActorChangeDimensionEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.player_change_dimension_hook.enabled", true)) {
+        event::unregisterPlayerChangeDimensionHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.explosion_hook.enabled", true)) {
+        event::unregisterExplosionEventHooks();
+    }
     return true;
 }
 

@@ -116,6 +116,15 @@ namespace CauldronZero
 		template<typename T>
 		void set(const std::string& path, const T& value);
 
+		/**
+		 * @brief 获取底层的 nlohmann::json 对象（只读）。
+		 *
+		 * 这对于需要遍历配置或执行 nlohmann::json 库特定操作的高级用例非常有用。
+		 *
+		 * @return 对底层 json 对象的常量引用。
+		 */
+		const nlohmann::json& get_json() const;
+
 		Config(const Config&) = delete;
 		Config& operator=(const Config&) = delete;
 		Config(Config&&) noexcept;

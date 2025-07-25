@@ -266,8 +266,12 @@ namespace CauldronZero
 
 #ifdef _WIN32
         if (!pimpl->hMutex) {
-            logger.error("Cannot save config that was not loaded first (system mutex not initialized).");
-            return false;
+            auto mutex_name = create_mutex_name(save_path);
+            pimpl->hMutex   = CreateMutexW(nullptr, FALSE, mutex_name.c_str());
+            if (!pimpl->hMutex) {
+                logger.error("Failed to create system-wide mutex for config file: {}", save_path);
+                return false;
+            }
         }
 
         DWORD waitResult = WaitForSingleObject(pimpl->hMutex, INFINITE);
@@ -468,11 +472,22 @@ namespace CauldronZero
         }
     }
 
+    const nlohmann::json& Config::get_json() const
+    {
+        // 如果 pimpl 无效，则返回一个静态的空 json 对象以确保安全。
+        static const nlohmann::json empty_json = nlohmann::json::object();
+        if (!pimpl) {
+            return empty_json;
+        }
+        return pimpl->data;
+    }
+
     // 显式实例化模板
     template std::optional<std::string> Config::get<std::string>(const std::string&) const;
     template std::optional<int> Config::get<int>(const std::string&) const;
     template std::optional<bool> Config::get<bool>(const std::string&) const;
     template std::optional<double> Config::get<double>(const std::string&) const;
+    template std::optional<float> Config::get<float>(const std::string&) const;
     template std::optional<unsigned int> Config::get<unsigned int>(const std::string&) const;
     template std::optional<uint64_t> Config::get<uint64_t>(const std::string&) const;
     template std::optional<std::vector<std::string>> Config::get<std::vector<std::string>>(const std::string&) const;
@@ -485,6 +500,7 @@ namespace CauldronZero
     template void Config::set<int>(const std::string&, const int&);
     template void Config::set<bool>(const std::string&, const bool&);
     template void Config::set<double>(const std::string&, const double&);
+    template void Config::set<float>(const std::string&, const float&);
     template void Config::set<unsigned int>(const std::string&, const unsigned int&);
     template void Config::set<uint64_t>(const std::string&, const uint64_t&);
     template void Config::set<std::vector<std::string>>(const std::string&, const std::vector<std::string>&);
@@ -497,6 +513,7 @@ namespace CauldronZero
     template int Config::get<int>(const std::string&, int) const;
     template bool Config::get<bool>(const std::string&, bool) const;
     template double Config::get<double>(const std::string&, double) const;
+    template float Config::get<float>(const std::string&, float) const;
     template unsigned int Config::get<unsigned int>(const std::string&, unsigned int) const;
     template uint64_t Config::get<uint64_t>(const std::string&, uint64_t) const;
     template std::vector<std::string> Config::get<std::vector<std::string>>(const std::string&, std::vector<std::string>) const;

@@ -1,4 +1,4 @@
-#pragma once
+
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
 #include "CauldronZero/SEHHandler.h"
 #include "ll/api/event/Emitter.h"

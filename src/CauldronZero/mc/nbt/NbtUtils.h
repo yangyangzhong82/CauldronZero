@@ -95,4 +95,19 @@ std::unique_ptr<CompoundTag> parseBinaryNBT(std::string_view data);
 
 std::string toBinaryNBT(const CompoundTag& tag);
 
+/**
+ * @brief 获取方块实体的NBT数据
+ * @param blockEntity 指向方块实体对象的指针
+ * @return 一个包含NBT数据的 std::unique_ptr<CompoundTag>。如果指针为空，则返回 nullptr。
+ */
+std::unique_ptr<CompoundTag> getBlockEntityNbt(BlockActor* blockEntity);
+
+/**
+ * @brief 设置方块实体的NBT数据
+ * @param blockEntity 指向方块实体对象的指针
+ * @param nbtTag 一个包含要设置的NBT数据的 std::unique_ptr<CompoundTag>
+ * @return 如果设置成功，返回 true；否则返回 false。
+ */
+bool setBlockEntityNbt(BlockActor* blockEntity, const CompoundTag& nbtTag);
+
 } // namespace CauldronZero::NbtUtils

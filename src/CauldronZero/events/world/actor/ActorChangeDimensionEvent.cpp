@@ -46,6 +46,7 @@ class ActorChangeDimensionAfterEventEmitter
 : public ll::event::Emitter<[](auto&&...) { return nullptr; }, CauldronZero::event::ActorChangeDimensionAfterEvent> {};
 
 
+
 LL_TYPE_INSTANCE_HOOK(
     ActorChangeDimensionHook,
     ll::memory::HookPriority::Normal,

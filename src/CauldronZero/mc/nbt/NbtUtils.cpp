@@ -21,7 +21,6 @@
 #include "mc/platform/UUID.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/world/level/Level.h"
-#include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/DBStorageConfig.h"
 #include "mc/world/level/storage/db_helpers/Category.h" // 新增
@@ -293,6 +292,22 @@ std::unique_ptr<CompoundTag> parseBinaryNBT(std::string_view data) {
 
 std::string toBinaryNBT(const CompoundTag& tag) { return tag.toBinaryNbt(); }
 
+std::unique_ptr<CompoundTag> getBlockEntityNbt(BlockActor* blockEntity) {
+    if (!blockEntity) {
+        return nullptr;
+    }
+    auto tag = std::make_unique<CompoundTag>();
+    blockEntity->save(*tag, *SaveContextFactory::createCloneSaveContext());
+    return tag;
+}
+
+bool setBlockEntityNbt(BlockActor* blockEntity, const CompoundTag& nbtTag) {
+    if (!blockEntity) {
+        return false;
+    }
+    DefaultDataLoadHelper helper;
+    blockEntity->load(*ll::service::getLevel(), nbtTag, helper);
+    return true;
+}
+
 } // namespace CauldronZero::NbtUtils
-
-

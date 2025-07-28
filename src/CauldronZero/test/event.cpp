@@ -1,21 +1,25 @@
 #pragma once
+#include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
 #include "CauldronZero/events/world/ExplosionEvent.h"
 #include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
 #include "CauldronZero/events/world/block/FireSpreadEvent.h"
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h" // Added
 #include "CauldronZero/logger.h"
-#include "mc/world/level/Explosion.h"
-#include "ll\api\event\EventBus.h"
-#include "mc/world/level/BlockPos.h"
-#include "mc/world/level/block/Block.h"
-#include "mc/nbt/CompoundTag.h"                 // Added
-#include "mc/nbt/CompoundTagVariant.h"          // Added
 #include "ll/api/event/EventRefObjSerializer.h" // Added
-#include "mc/world/actor/player/Player.h"       // Added
-#include "mc/world/level/BlockSource.h"         // Added
-#include "mc/world/level/block/ItemFrameBlock.h" // Added
+#include "ll\api\event\EventBus.h"
+#include "mc/nbt/CompoundTag.h"        // Added
+#include "mc/nbt/CompoundTagVariant.h" // Added
 #include "mc/world/actor/Actor.h"
+#include "mc/world/actor/player/Player.h" // Added
+#include "mc/world/level/BlockPos.h"
+#include "mc/world/level/BlockSource.h" // Added
+#include "mc/world/level/Explosion.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/ItemFrameBlock.h" // Added
+#include "mc/world/actor/Mob.h"
+#include "mc/world/actor/ActorDefinitionIdentifier.h"
+
 
 namespace CauldronZero::event {
 
@@ -26,7 +30,7 @@ void registerTestEventListeners() {
     // 1. ExplosionBeforeEvent
     ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ExplosionBeforeEvent>(
         [](CauldronZero::event::ExplosionBeforeEvent& event) {
-            auto&       explosion    = event.getExplosion();
+            auto& explosion = event.getExplosion();
             logger.info(
                 "ExplosionBeforeEvent: , Pos=({}, {}, {}), Radius={}",
                 explosion.mPos->x,
@@ -57,7 +61,7 @@ void registerTestEventListeners() {
                 burnedPos.y,
                 burnedPos.z
             );
-            //event.cancel(); 
+            // event.cancel();
         }
     );
 
@@ -92,7 +96,7 @@ void registerTestEventListeners() {
                 spreadPos.y,
                 spreadPos.z
             );
-           // event.cancel(); 
+            // event.cancel();
         }
     );
 
@@ -131,22 +135,24 @@ void registerTestEventListeners() {
         }
     );
 
-    // 7. ItemFrameBlockUseBeforeEvent
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ItemFrameBlockUseBeforeEvent>(
-        [](CauldronZero::event::ItemFrameBlockUseBeforeEvent& event) {
-            const auto& player = event.getPlayer();
-            const auto& pos    = event.getPos();
+    // 7. MobHurtEffectEvent
+    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::MobHurtEffectEvent>(
+        [](CauldronZero::event::MobHurtEffectEvent& event) {
+            auto&       mob          = event.getMob();
+            const auto& source       = event.getSource();
+            auto&       damage       = event.getDamage();
+            auto*       damageSource = event.getDamageSource();
             logger.info(
-                "ItemFrameBlockUseBeforeEvent: Player={}, Pos=({}, {}, {})",
-                player.getNameTag(),
-                pos.x,
-                pos.y,
-                pos.z
+                "MobHurtEffectEvent: MobType={}, Damage={}, SourceCause={}, DamageSource={}",
+                mob.getTypeName(),
+                damage,
+                (int)source.mCause,
+                damageSource ? damageSource->getTypeName() : "null"
             );
             CompoundTag nbt;
             event.serialize(nbt);
-            logger.info("ItemFrameBlockUseBeforeEvent NBT: {}", nbt.toString());
+            logger.info("MobHurtEffectEvent NBT: {}", nbt.toString());
         }
     );
-}
+    }
 }

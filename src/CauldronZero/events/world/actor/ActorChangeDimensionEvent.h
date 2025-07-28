@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CauldronZero/Macros.h"             
-#include "mc/world/level/dimension/Dimension.h" 
+#include "CauldronZero/Macros.h"
+#include "mc/nbt/CompoundTag.h"
+#include "mc/world/level/dimension/Dimension.h"
 #include <ll/api/event/Cancellable.h>
 #include <ll/api/event/Event.h>
-#include "mc/nbt/CompoundTag.h" // Added for NBT serialization
-#include <ll/api/event/EventRefObjSerializer.h> // Added for serializeRefObj
+#include <ll/api/event/EventRefObjSerializer.h>
 
 
 class Actor;

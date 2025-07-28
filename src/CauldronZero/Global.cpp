@@ -29,7 +29,19 @@ void Global::setupConfig() {
         mConfig.set("features.item_frame_use_hook.enabled", true);  
         mConfig.set("features.actor_change_dimension_hook.enabled", true);
         mConfig.set("features.player_change_dimension_hook.enabled", true); // 添加新的配置项
+        mConfig.set("features.player_drop_item_hook.enabled", true);
+        mConfig.set("features.player_interact_entity_hook.enabled", true);
+        mConfig.set("features.player_edit_sign_hook.enabled", true);
         mConfig.set("features.explosion_hook.enabled", true);
+        mConfig.set("features.farm_trample_hook.enabled", true);
+        mConfig.set("features.wither_destroy_hook.enabled", true);
+        mConfig.set("features.liquid_spread_hook.enabled", true);
+        mConfig.set("features.dragon_egg_teleport_hook.enabled", true);
+        mConfig.set("features.mob_hurt_effect_hook.enabled", true);
+        mConfig.set("features.projectile_hit_hook.enabled", true);
+        mConfig.set("features.actor_ride_hook.enabled", true);
+        mConfig.set("features.container_item_change_hook.enabled", true);
+        mConfig.set("features.mob_totem_respawn_hook.enabled", true);
         mConfig.save(configFilePath.string());
     } else {
         if (!mConfig.load(configFilePath.string())) {

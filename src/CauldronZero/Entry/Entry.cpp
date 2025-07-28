@@ -1,26 +1,28 @@
 #include "Entry.h"
 #include "CauldronZero/Global.h"
-#include "CauldronZero/events/world/block/FireBlockEvent.h"
-#include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
+#include "CauldronZero/Utils/PapiPlayerExpansion.h"
+#include "CauldronZero/events/world/ContainerItemChangeEvent.h"
+#include "CauldronZero/events/world/ExplosionEvent.h"
 #include "CauldronZero/events/world/actor/ActorChangeDimensionEvent.h" // Added for ActorChangeDimensionHook
 #include "CauldronZero/events/world/actor/ActorDestroyBlockEvent.h"
 #include "CauldronZero/events/world/actor/ActorRideEvent.h"
+#include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
+#include "CauldronZero/events/world/actor/MobTotemRespawnEvent.h"
+#include "CauldronZero/events/world/actor/ProjectileHitEvent.h"
+#include "CauldronZero/events/world/actor/WitherDestroyEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" // Added for PlayerChangeDimensionHook
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerInteractEntityEvent.h"
-#include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
-#include "CauldronZero/events/world/actor/ProjectileHitEvent.h"
-#include "CauldronZero/events/world/actor/WitherDestroyEvent.h"
-#include "CauldronZero/events/world/actor/MobTotemRespawnEvent.h"
-#include "CauldronZero/events/world/block/FarmTrampleEvent.h"
-#include "CauldronZero/events/world/block/LiquidBlockSpread.h"
 #include "CauldronZero/events/world/block/DragonEggBlockEvent.h"
-#include "CauldronZero/events/world/ContainerItemChangeEvent.h"
-#include "CauldronZero/events/world/ExplosionEvent.h"
+#include "CauldronZero/events/world/block/FarmTrampleEvent.h"
+#include "CauldronZero/events/world/block/FireBlockEvent.h"
+#include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
+#include "CauldronZero/events/world/block/LiquidBlockSpread.h"
 #include "CauldronZero/logger.h"
-#include "ll/api/mod/RegisterHelper.h"
 #include "CauldronZero/test/event.h"
+#include "ll/api/mod/RegisterHelper.h"
+
 namespace CauldronZero {
 
 Entry& Entry::getInstance() {
@@ -37,6 +39,7 @@ ll::mod::NativeMod& Entry::getSelf() const { return mSelf; }
 bool Entry::load() {
     getSelf().getLogger().debug("Loading...");
     Global::getInstance().load();
+    CauldronZero::Utils::Papi::registerPlayerExpansion();
     return true;
 }
 

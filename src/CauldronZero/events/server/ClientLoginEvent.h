@@ -3,6 +3,7 @@
 #include "CauldronZero/Macros.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/NetworkIdentifier.h"
+#include "mc/platform/UUID.h"
 #include <ll/api/event/Event.h>
 #include <string>
 
@@ -26,6 +27,11 @@ public:
 
     CZ_API ConnectionRequest& getConnectionRequest() const;
     CZ_API const std::string& getPlayerName() const;
+
+    CZ_API std::string getIp() const;
+    CZ_API std::string getXuid() const;
+    CZ_API mce::UUID   getUuid() const;
+    CZ_API std::string getDeviceId() const;
 
     // API to disconnect the player
     CZ_API void disconnect(const std::string& message = "Connection rejected by server.") const;

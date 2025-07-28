@@ -22,6 +22,18 @@ void ClientLoginBeforeEvent::disconnect(const std::string& message) const {
         ->disconnectClient(mNetworkIdentifier, Connection::DisconnectFailReason::Kicked, message, std::nullopt, false);
 }
 
+std::string ClientLoginBeforeEvent::getIp() const { return mNetworkIdentifier.getIPAndPort(); }
+
+std::string ClientLoginBeforeEvent::getXuid() const {
+    return mConnectionRequest.mLegacyMultiplayerToken->getXuid(false);
+}
+
+mce::UUID ClientLoginBeforeEvent::getUuid() const {
+    return mConnectionRequest.mLegacyMultiplayerToken->getIdentity();
+}
+
+std::string ClientLoginBeforeEvent::getDeviceId() const { return mConnectionRequest.getDeviceId(); }
+
 // Emitter 是一个空类，它通过其静态变量 `reg`，负责在程序启动时
 // 将 `ClientLoginBeforeEvent` 事件注册到 EventBus 中。
 class ClientLoginBeforeEventEmitter

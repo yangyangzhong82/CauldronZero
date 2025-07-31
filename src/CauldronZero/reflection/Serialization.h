@@ -4,6 +4,8 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
+#include "TypeTraits.h"
+
 namespace CauldronZero::reflection
 {
 
@@ -17,13 +19,42 @@ namespace CauldronZero::reflection
         template <typename T>
         void serialize_member(nlohmann::json& j, const T& obj, const char* name, const auto& member_ptr)
         {
-            if constexpr (Reflectable<std::remove_cvref_t<decltype(obj.*member_ptr)>>)
+            using MemberType = std::remove_cvref_t<decltype(obj.*member_ptr)>;
+
+            if constexpr (Reflectable<MemberType>)
             {
                 // 递归序列化嵌套的 Reflectable 对象
                 j[name] = serialize(obj.*member_ptr).value_or(nlohmann::json{});
             }
+            else if constexpr (detail::is_vector<MemberType>::value)
+            {
+                // 处理 vector
+                nlohmann::json arr = nlohmann::json::array();
+                for (const auto& item : obj.*member_ptr) {
+                    if constexpr (Reflectable<std::remove_cvref_t<decltype(item)>>) {
+                        arr.push_back(serialize(item).value_or(nlohmann::json{}));
+                    } else {
+                        arr.push_back(item);
+                    }
+                }
+                j[name] = arr;
+            }
+            else if constexpr (detail::is_map<MemberType>::value)
+            {
+                // 处理 map
+                nlohmann::json map_obj = nlohmann::json::object();
+                for (const auto& [key, value] : obj.*member_ptr) {
+                    if constexpr (Reflectable<std::remove_cvref_t<decltype(value)>>) {
+                        map_obj[key] = serialize(value).value_or(nlohmann::json{});
+                    } else {
+                        map_obj[key] = value;
+                    }
+                }
+                j[name] = map_obj;
+            }
             else
             {
+                // 处理普通类型
                 j[name] = obj.*member_ptr;
             }
         }

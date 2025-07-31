@@ -1,6 +1,7 @@
 #pragma once
-#include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
 #include "CauldronZero/events/world/ExplosionEvent.h"
+#include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
+#include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h" // Added for PlayerEditSignEvent
 #include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
 #include "CauldronZero/events/world/block/FireSpreadEvent.h"
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h" // Added
@@ -10,6 +11,8 @@
 #include "mc/nbt/CompoundTag.h"        // Added
 #include "mc/nbt/CompoundTagVariant.h" // Added
 #include "mc/world/actor/Actor.h"
+#include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/Mob.h"
 #include "mc/world/actor/player/Player.h" // Added
 #include "mc/world/level/BlockPos.h"
 #include "mc/world/level/BlockSource.h" // Added
@@ -17,15 +20,13 @@
 #include "mc/world/level/Level.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h" // Added
-#include "mc/world/actor/Mob.h"
-#include "mc/world/actor/ActorDefinitionIdentifier.h"
 
 
 namespace CauldronZero::event {
 
 
 void registerTestEventListeners() {
-
+    logger.info("registerTestEventListeners: 注册测试事件监听器.");
 
     // 1. ExplosionBeforeEvent
     ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ExplosionBeforeEvent>(
@@ -154,5 +155,25 @@ void registerTestEventListeners() {
             logger.info("MobHurtEffectEvent NBT: {}", nbt.toString());
         }
     );
-    }
+
+    // 8. PlayerEditSignBeforeEvent
+    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::PlayerEditSignBeforeEvent>(
+        [](CauldronZero::event::PlayerEditSignBeforeEvent& event) {
+            logger.info("PlayerEditSignBeforeEvent 监听器被调用 (简化版).");
+            // CompoundTag nbt;
+            // event.serialize(nbt);
+            // logger.info("PlayerEditSignBeforeEvent NBT: {}", nbt.toString());
+            // event.cancel(); // 可以取消事件
+        }
+    );
+    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::PlayerEditSignAfterEvent>(
+        [](CauldronZero::event::PlayerEditSignAfterEvent& event) {
+            logger.info("PlayerEditSignBeforeEvent 114514 (简化版).");
+            // CompoundTag nbt;
+            // event.serialize(nbt);
+            // logger.info("PlayerEditSignBeforeEvent NBT: {}", nbt.toString());
+            // event.cancel(); // 可以取消事件
+        }
+    );
 }
+} // namespace CauldronZero::event

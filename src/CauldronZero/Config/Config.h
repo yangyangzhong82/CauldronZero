@@ -6,11 +6,23 @@
 #include <memory>
 #include <optional>
 #include <functional>
+#include <filesystem> // 需要包含此头文件以使用 std::filesystem::exists
 
 #include <nlohmann/json_fwd.hpp> // Use the official forward-declaration header.
 
+#include "CauldronZero/reflection/Reflection.h"
+#include "CauldronZero/reflection/Serialization.h"
+#include "CauldronZero/reflection/Deserialization.h"
+
 namespace CauldronZero
 {
+    // Concept: 检查一个类型是否是有效的配置结构体
+    // 要求：可反射，且有一个名为 'version' 的整型成员
+    template <typename T>
+    concept IsConfig = reflection::Reflectable<T> && requires(T obj) {
+        { obj.version } -> std::integral;
+    };
+
 	class CZ_API Config
 	{
 	public:
@@ -38,6 +50,18 @@ namespace CauldronZero
 		 */
 		bool load(const std::string& path);
 
+        /**
+         * @brief 从文件加载、更新并反序列化一个可反射的配置结构体。
+         *
+         * @tparam T 配置结构体的类型，必须满足 IsConfig concept。
+         * @param config_obj 要填充的配置对象。
+         * @param path 配置文件的路径。
+         * @param updater 一个可选的函数，用于在版本不匹配时自定义更新逻辑。
+         * @return 如果文件被创建或更新，则返回 false；如果文件无需修改，则返回 true。
+         */
+        template <IsConfig T>
+        bool load(T& config_obj, const std::string& path, std::function<bool(T&, nlohmann::json&)> updater = nullptr);
+
 		/**
 		 * @brief 将当前配置保存到文件。
 		 *
@@ -47,6 +71,17 @@ namespace CauldronZero
 		 * @return 如果保存成功，则返回 true；否则返回 false。
 		 */
 		bool save(const std::string& path = "");
+
+        /**
+         * @brief 将一个可反射的配置结构体序列化并保存到文件。
+         *
+         * @tparam T 配置结构体的类型，必须满足 Reflectable concept。
+         * @param config_obj 要保存的配置对象。
+         * @param path 要保存到的文件路径。
+         * @return 如果保存成功，则返回 true；否则返回 false。
+         */
+        template <reflection::Reflectable T>
+        bool save(const T& config_obj, const std::string& path);
 
 		/**
 		 * @brief 将另一个配置对象合并到当前配置中（破坏性合并）。
@@ -133,5 +168,87 @@ namespace CauldronZero
 	private:
 		class Impl; // 前向声明 PImpl
 		std::unique_ptr<Impl> pimpl;
+
+        // 默认的配置更新器
+        template <IsConfig T>
+        static bool defaultConfigUpdater(T& config, nlohmann::json& data);
 	};
+
+    // --- 模板函数实现 ---
+
+    template <IsConfig T>
+    bool Config::defaultConfigUpdater(T& config, nlohmann::json& data)
+    {
+        // 移除旧版本号，以便使用新结构体的版本号
+        if (data.contains("version")) {
+            data.erase("version");
+        }
+
+        // 将默认配置序列化为 JSON
+        auto patch = reflection::serialize(config);
+        if (!patch) {
+            return false; // 序列化失败
+        }
+
+        // 将磁盘上的旧配置覆盖到默认配置上
+        patch->merge_patch(data);
+
+        // 更新 data 为合并后的结果
+        data = std::move(*patch);
+        return true;
+    }
+
+    template <IsConfig T>
+    bool Config::load(T& config_obj, const std::string& path, std::function<bool(T&, nlohmann::json&)> updater)
+    {
+        bool noNeedRewrite = true;
+        if (!std::filesystem::exists(path)) {
+            // 如果文件不存在，直接保存默认配置
+            save(config_obj, path);
+            noNeedRewrite = false;
+        }
+
+        // 从文件加载原始 JSON 数据
+        Config file_config;
+        if (!file_config.load(path)) {
+            // 如果加载失败（例如文件损坏），也用默认配置覆盖
+            save(config_obj, path);
+            return false;
+        }
+
+        nlohmann::json data = file_config.get_json();
+
+        // 检查版本
+        if (!data.contains("version") || !data["version"].is_number() || data["version"].get<int>() != config_obj.version)
+        {
+            noNeedRewrite = false;
+            // 版本不匹配，调用更新器
+            auto do_update = updater ? updater : defaultConfigUpdater<T>;
+            if (!do_update(config_obj, data)) {
+                // 更新失败，记录错误
+                // logger.error("Failed to update config structure for '{}'", path);
+                return false;
+            }
+            // 更新后需要重写文件
+            Config updated_config(data);
+            updated_config.save(path);
+        }
+
+        // 将最终的 JSON 数据反序列化到配置对象中
+        reflection::deserialize(config_obj, data);
+
+        return noNeedRewrite;
+    }
+
+    template <reflection::Reflectable T>
+    bool Config::save(const T& config_obj, const std::string& path)
+    {
+        auto json_opt = reflection::serialize(config_obj);
+        if (!json_opt) {
+            return false; // 序列化失败
+        }
+
+        Config config_to_save(*json_opt);
+        return config_to_save.save(path);
+    }
 }

@@ -2,33 +2,67 @@
 
 #include "CauldronZero/Macros.h"
 #include "mc/nbt/CompoundTag.h"
-#include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/SignBlockActor.h"
+#include <ll/api/event/Cancellable.h>
 #include <ll/api/event/Event.h>
 #include <string>
 
-class Player;
+class ServerPlayer;
 
 namespace CauldronZero::event {
 
-class PlayerEditSignEvent final : public ll::event::Event {
+class PlayerEditSignBeforeEvent final : public ll::event::Cancellable<ll::event::Event> {
 protected:
-    Player& mPlayer;
-    SignBlockActor::Text& mSignText;
-    std::string mOriginalText;
+    ServerPlayer&   mPlayer;
+    SignBlockActor& mSign;
+    std::string     mNewFrontText;
+    std::string     mNewBackText;
 
 public:
-    constexpr explicit PlayerEditSignEvent(Player& player, SignBlockActor::Text& signText)
+    constexpr explicit PlayerEditSignBeforeEvent(
+        ServerPlayer&   player,
+        SignBlockActor& sign,
+        std::string     newFrontText,
+        std::string     newBackText
+    )
     : mPlayer(player),
-      mSignText(signText),
-      mOriginalText(signText.getMessage()) {}
+      mSign(sign),
+      mNewFrontText(std::move(newFrontText)),
+      mNewBackText(std::move(newBackText)) {}
 
-    CZ_API Player& getPlayer() const;
-    CZ_API const std::string& getOriginalText() const;
-    CZ_API std::string getText() const;
-    CZ_API void setText(const std::string& text);
+    CZ_API ServerPlayer&   getPlayer() const;
+    CZ_API SignBlockActor& getSign() const;
+    CZ_API std::string& getNewFrontText();
+    CZ_API std::string& getNewBackText();
 
-    virtual void serialize(CompoundTag& nbt) const override;
+    void serialize(CompoundTag& nbt) const override;
+};
+
+class PlayerEditSignAfterEvent final : public ll::event::Event {
+protected:
+    ServerPlayer&   mPlayer;
+    SignBlockActor& mSign;
+    std::string     mOldFrontText;
+    std::string     mOldBackText;
+
+public:
+    constexpr explicit PlayerEditSignAfterEvent(
+        ServerPlayer&   player,
+        SignBlockActor& sign,
+        std::string     oldFrontText,
+        std::string     oldBackText
+    )
+    : mPlayer(player),
+      mSign(sign),
+      mOldFrontText(std::move(oldFrontText)),
+      mOldBackText(std::move(oldBackText)) {}
+
+    CZ_API ServerPlayer&   getPlayer() const;
+    CZ_API SignBlockActor& getSign() const;
+    CZ_API const std::string& getOldFrontText() const;
+    CZ_API const std::string& getOldBackText() const;
+
+    void serialize(CompoundTag& nbt) const override;
 };
 
 void registerPlayerEditSignHooks();

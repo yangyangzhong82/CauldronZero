@@ -5,12 +5,13 @@
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/EventRefObjSerializer.h"
 #include "ll/api/memory/Hook.h"
+#include "ll/api/service/Bedrock.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/nbt/CompoundTagVariant.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/Mob.h"
-#include "ll/api/service/Bedrock.h"
 #include "mc/world/level/Level.h"
+
 
 
 namespace CauldronZero::event {
@@ -45,23 +46,26 @@ LL_TYPE_INSTANCE_HOOK(
     float                      damage
 ) {
     try {
-        Actor* damageSource = nullptr;
-        if (source.isEntitySource()) {
-            if (source.isChildEntitySource()) {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
-            } else {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
+        if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
+            || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
+
+            Actor* damageSource = nullptr;
+            if (source.isEntitySource()) {
+                if (source.isChildEntitySource()) {
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
+                } else {
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
+                }
+            }
+
+            auto& mob   = *this;
+            auto  event = MobHurtEffectEvent(mob, source, damage, damageSource);
+            ll::event::EventBus::getInstance().publish(event);
+
+            if (event.isCancelled()) {
+                return 0.0f;
             }
         }
-
-        auto& mob   = *this;
-        auto  event = MobHurtEffectEvent(mob, source, damage, damageSource);
-        ll::event::EventBus::getInstance().publish(event);
-
-        if (event.isCancelled()) {
-            return 0.0f;
-        }
-
         return origin(source, damage);
     } catch (const SEH_Exception& e) {
         logger.warn(

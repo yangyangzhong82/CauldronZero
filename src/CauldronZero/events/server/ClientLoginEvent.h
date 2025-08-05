@@ -27,6 +27,7 @@ public:
 
     CZ_API ConnectionRequest& getConnectionRequest() const;
     CZ_API const std::string& getPlayerName() const;
+    CZ_API const NetworkIdentifier& getNetworkIdentifier() const;
 
     CZ_API std::string getIp() const;
     CZ_API std::string getXuid() const;

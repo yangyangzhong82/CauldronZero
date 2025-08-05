@@ -26,6 +26,8 @@
 #include "mc/world/level/storage/db_helpers/Category.h" // 新增
 #include "mc\world\item\SaveContextFactory.h"
 #include <string_view>
+#include "mc/world/item/Item.h"
+#include "mc/world/item/ItemStack.h"
 
 namespace CauldronZero::NbtUtils {
 DBStorage*                                                  dbStorage;      // 添加 dbStorage 的定义
@@ -310,4 +312,37 @@ bool setBlockEntityNbt(BlockActor* blockEntity, const CompoundTag& nbtTag) {
     return true;
 }
 
+std::unique_ptr<ItemStack> createItemFromNbt(const CompoundTag& tag) {
+    auto newItem = std::make_unique<ItemStack>(ItemStack::EMPTY_ITEM());
+    newItem->_loadItem(tag);
+    auto mItem = newItem->mItem;
+    if (mItem) {
+        mItem->fixupCommon(*newItem);
+        if (newItem->getAuxValue() == 0x7FFF) {
+            newItem->mAuxValue = 0;
+        }
+    }
+    return newItem;
+}
+
+
+std::unique_ptr<CompoundTag> getItemNbt(const ItemStack& item) {
+    return item.save(*SaveContextFactory::createCloneSaveContext());
+}
+
+bool setItemNbt(ItemStack& item, const CompoundTag& tag) {
+    item._loadItem(tag);
+    auto mItem = item.mItem;
+    if (mItem) {
+        mItem->fixupCommon(item);
+        if (item.getAuxValue() == 0x7FFF) {
+            item.mAuxValue = 0;
+        }
+    }
+    return true;
+}
+
+
 } // namespace CauldronZero::NbtUtils
+
+

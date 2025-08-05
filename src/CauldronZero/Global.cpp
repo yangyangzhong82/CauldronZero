@@ -42,6 +42,7 @@ void Global::setupConfig() {
         mConfig.set("features.actor_ride_hook.enabled", true);
         mConfig.set("features.container_item_change_hook.enabled", true);
         mConfig.set("features.mob_totem_respawn_hook.enabled", true);
+        mConfig.set("features.client_login_hook.enabled", true);
         mConfig.save(configFilePath.string());
     } else {
         if (!mConfig.load(configFilePath.string())) {

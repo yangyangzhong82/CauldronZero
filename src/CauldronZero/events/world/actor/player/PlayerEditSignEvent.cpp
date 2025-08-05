@@ -92,7 +92,7 @@ LL_TYPE_INSTANCE_HOOK(
                         logger.debug("PlayerEditSignEventHook::hook: PlayerEditSignBeforeEvent 发布完成.");
 
                         if (beforeEvent.isCancelled()) {
-                            logger.info("PlayerEditSignEventHook::hook: PlayerEditSignBeforeEvent 被取消.");
+                           // logger.info("PlayerEditSignEventHook::hook: PlayerEditSignBeforeEvent 被取消.");
                             return;
                         }
 

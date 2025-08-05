@@ -11,6 +11,8 @@ class Player;
 
 // Forward declaration
 class BlockActor;
+// Forward declaration
+class ItemStack;
 
 namespace CauldronZero::NbtUtils {
 class MoreGlobal {
@@ -109,5 +111,26 @@ std::unique_ptr<CompoundTag> getBlockEntityNbt(BlockActor* blockEntity);
  * @return 如果设置成功，返回 true；否则返回 false。
  */
 bool setBlockEntityNbt(BlockActor* blockEntity, const CompoundTag& nbtTag);
+/**
+ * @brief 从NBT数据创建一个新的ItemStack
+ * @param tag 包含物品数据的CompoundTag
+ * @return 一个包含新物品的 std::unique_ptr<ItemStack>。
+ */
+std::unique_ptr<ItemStack> createItemFromNbt(const CompoundTag& tag);
+
+/**
+ * @brief 获取ItemStack的NBT数据
+ * @param item 要获取NBT的ItemStack
+ * @return 一个包含NBT数据的 std::unique_ptr<CompoundTag>。
+ */
+std::unique_ptr<CompoundTag> getItemNbt(const ItemStack& item);
+
+/**
+ * @brief 设置ItemStack的NBT数据
+ * @param item 要设置NBT的ItemStack
+ * @param tag 包含要设置的NBT数据的CompoundTag
+ * @return 如果设置成功，返回 true；否则返回 false。
+ */
+bool setItemNbt(ItemStack& item, const CompoundTag& tag);
 
 } // namespace CauldronZero::NbtUtils

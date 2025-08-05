@@ -17,6 +17,8 @@ namespace CauldronZero::event {
 ConnectionRequest& ClientLoginBeforeEvent::getConnectionRequest() const { return mConnectionRequest; }
 const std::string& ClientLoginBeforeEvent::getPlayerName() const { return mPlayerName; }
 
+const NetworkIdentifier& ClientLoginBeforeEvent::getNetworkIdentifier() const { return mNetworkIdentifier; }
+
 void ClientLoginBeforeEvent::disconnect(const std::string& message) const {
     ll::service::getServerNetworkHandler()
         ->disconnectClient(mNetworkIdentifier, Connection::DisconnectFailReason::Kicked, message, std::nullopt, false);
@@ -76,6 +78,7 @@ LL_TYPE_INSTANCE_HOOK(
             logger.debug("  Device ID: {}", deviceId);
             logger.debug("  Name: {}", name);
             logger.debug("  Client XUID: {}", ClientAuthXuid);
+            
         }
     } catch (const SEH_Exception& e) {
         logger.error(

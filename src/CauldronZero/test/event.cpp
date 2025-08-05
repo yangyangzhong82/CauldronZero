@@ -21,6 +21,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h" // Added
 
+#include "CauldronZero/events/server/ClientLoginEvent.h" // Added for ClientLoginBeforeEvent
 
 namespace CauldronZero::event {
 
@@ -173,6 +174,11 @@ void registerTestEventListeners() {
             // event.serialize(nbt);
             // logger.info("PlayerEditSignBeforeEvent NBT: {}", nbt.toString());
             // event.cancel(); // 可以取消事件
+        }
+    );
+    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ClientLoginBeforeEvent>(
+        [](CauldronZero::event::ClientLoginBeforeEvent& event) {
+event.disconnect("1");
         }
     );
 }

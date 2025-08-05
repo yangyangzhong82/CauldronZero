@@ -14,6 +14,7 @@
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerInteractEntityEvent.h"
+#include "CauldronZero/events/server/ClientLoginEvent.h"
 #include "CauldronZero/events/world/block/DragonEggBlockEvent.h"
 #include "CauldronZero/events/world/block/FarmTrampleEvent.h"
 #include "CauldronZero/events/world/block/FireBlockEvent.h"
@@ -102,7 +103,10 @@ bool Entry::enable() {
     if (Global::getInstance().getConfig().get<bool>("features.mob_totem_respawn_hook.enabled", true)) {
         event::registerMobTotemRespawnEventHooks();
     }
-    event::registerTestEventListeners();
+    if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
+        event::registerClientLoginEventHooks();
+    }
+//event::registerTestEventListeners();
     return true;
 }
 
@@ -164,6 +168,9 @@ bool Entry::disable() {
     }
     if (Global::getInstance().getConfig().get<bool>("features.mob_totem_respawn_hook.enabled", true)) {
         event::unregisterMobTotemRespawnEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
+        event::unregisterClientLoginEventHooks();
     }
     return true;
 }

@@ -43,6 +43,8 @@ void Global::setupConfig() {
         mConfig.set("features.container_item_change_hook.enabled", true);
         mConfig.set("features.mob_totem_respawn_hook.enabled", true);
         mConfig.set("features.client_login_hook.enabled", true);
+        mConfig.set("features.player_armor_stand_swap_item_hook.enabled", true);
+        mConfig.set("features.projectile_create_hook.enabled", true);
         mConfig.save(configFilePath.string());
     } else {
         if (!mConfig.load(configFilePath.string())) {

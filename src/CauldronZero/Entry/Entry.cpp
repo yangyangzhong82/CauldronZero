@@ -14,6 +14,8 @@
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerInteractEntityEvent.h"
+#include "CauldronZero/events/world/actor/player/PlayerArmorStandSwapItemEvent.h"
+#include "CauldronZero/events/world/actor/ProjectileCreateEvent.h"
 #include "CauldronZero/events/server/ClientLoginEvent.h"
 #include "CauldronZero/events/world/block/DragonEggBlockEvent.h"
 #include "CauldronZero/events/world/block/FarmTrampleEvent.h"
@@ -106,6 +108,12 @@ bool Entry::enable() {
     if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
         event::registerClientLoginEventHooks();
     }
+    if (Global::getInstance().getConfig().get<bool>("features.player_armor_stand_swap_item_hook.enabled", true)) {
+        event::registerPlayerArmorStandSwapItemHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.projectile_create_hook.enabled", true)) {
+        event::registerProjectileCreateHooks();
+    }
 //event::registerTestEventListeners();
     return true;
 }
@@ -171,6 +179,12 @@ bool Entry::disable() {
     }
     if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
         event::unregisterClientLoginEventHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.player_armor_stand_swap_item_hook.enabled", true)) {
+        event::unregisterPlayerArmorStandSwapItemHooks();
+    }
+    if (Global::getInstance().getConfig().get<bool>("features.projectile_create_hook.enabled", true)) {
+        event::unregisterProjectileCreateHooks();
     }
     return true;
 }

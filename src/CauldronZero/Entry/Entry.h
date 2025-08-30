@@ -2,6 +2,7 @@
 
 #include "CauldronZero/Macros.h"
 #include "ll/api/mod/NativeMod.h"
+#include "CauldronZero/Config.h"
 
 namespace CauldronZero {
 
@@ -20,12 +21,15 @@ public:
     bool load();
     bool enable();
     bool disable();
-
+    Config& getConfig();
 private:
     Entry();
     ~Entry();
 
     ll::mod::NativeMod& mSelf;
 };
-
+inline std::optional<Config>  config;
 } // namespace CauldronZero
+
+// 声明 loadCauldronZeroConfig 函数
+void loadCauldronZeroConfig();

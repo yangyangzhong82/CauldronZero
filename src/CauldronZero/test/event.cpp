@@ -2,8 +2,7 @@
 #include "CauldronZero/events/world/ExplosionEvent.h"
 #include "CauldronZero/events/world/actor/MobHurtEffectEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h" // Added for PlayerEditSignEvent
-#include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
-#include "CauldronZero/events/world/block/FireSpreadEvent.h"
+
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h" // Added
 #include "CauldronZero/logger.h"
 #include "ll/api/event/EventRefObjSerializer.h" // Added
@@ -47,77 +46,8 @@ void registerTestEventListeners() {
         }
     );
 
-    // 2. FireBlockBurnBeforeEvent
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::FireBlockBurnBeforeEvent>(
-        [](CauldronZero::event::FireBlockBurnBeforeEvent& event) {
-            const auto& firePos   = event.getFirePos();
-            const auto& burnedPos = event.getBurnedPos();
-            const auto& block     = event.getBurnedBlock();
-            logger.info(
-                "Fire at ({}, {}, {}) is trying to burn block {} at ({}, {}, {})",
-                firePos.x,
-                firePos.y,
-                firePos.z,
-                block.getTypeName(),
-                burnedPos.x,
-                burnedPos.y,
-                burnedPos.z
-            );
-            // event.cancel();
-        }
-    );
 
-    // 3. FireBlockBurnAfterEvent
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::FireBlockBurnAfterEvent>(
-        [](CauldronZero::event::FireBlockBurnAfterEvent& event) {
-            const auto& firePos   = event.getFirePos();
-            const auto& burnedPos = event.getBurnedPos();
-            logger.info(
-                "Fire at ({}, {}, {}) has burned the block at ({}, {}, {})",
-                firePos.x,
-                firePos.y,
-                firePos.z,
-                burnedPos.x,
-                burnedPos.y,
-                burnedPos.z
-            );
-        }
-    );
 
-    // 4. FireSpreadBeforeEvent
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::FireSpreadBeforeEvent>(
-        [](CauldronZero::event::FireSpreadBeforeEvent& event) {
-            const auto& firePos   = event.getFirePos();
-            const auto& spreadPos = event.getSpreadPos();
-            logger.info(
-                "Fire at ({}, {}, {}) is trying to spread to ({}, {}, {})",
-                firePos.x,
-                firePos.y,
-                firePos.z,
-                spreadPos.x,
-                spreadPos.y,
-                spreadPos.z
-            );
-            // event.cancel();
-        }
-    );
-
-    // 5. FireSpreadAfterEvent
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::FireSpreadAfterEvent>(
-        [](CauldronZero::event::FireSpreadAfterEvent& event) {
-            const auto& firePos   = event.getFirePos();
-            const auto& spreadPos = event.getSpreadPos();
-            logger.info(
-                "Fire at ({}, {}, {}) has spread to ({}, {}, {})",
-                firePos.x,
-                firePos.y,
-                firePos.z,
-                spreadPos.x,
-                spreadPos.y,
-                spreadPos.z
-            );
-        }
-    );
 
     // 6. ItemFrameBlockAttackBeforeEvent
     ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ItemFrameBlockAttackBeforeEvent>(
@@ -176,10 +106,6 @@ void registerTestEventListeners() {
             // event.cancel(); // 可以取消事件
         }
     );
-    ll::event::EventBus::getInstance().emplaceListener<CauldronZero::event::ClientLoginBeforeEvent>(
-        [](CauldronZero::event::ClientLoginBeforeEvent& event) {
-event.disconnect("1");
-        }
-    );
+
 }
 } // namespace CauldronZero::event

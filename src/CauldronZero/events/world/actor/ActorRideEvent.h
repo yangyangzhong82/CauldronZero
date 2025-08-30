@@ -45,6 +45,24 @@ public:
     virtual void serialize(CompoundTag& nbt) const override;
 };
 
+// Triggered after an actor has stopped riding another actor.
+// This event cannot be cancelled.
+class ActorStopRidingEvent final : public ll::event::Event {
+protected:
+    Actor& mVehicle;
+    Actor& mPassenger;
+
+public:
+    constexpr explicit ActorStopRidingEvent(Actor& vehicle, Actor& passenger)
+    : mVehicle(vehicle),
+      mPassenger(passenger) {}
+
+    CZ_API Actor& getVehicle() const;
+    CZ_API Actor& getPassenger() const;
+
+    virtual void serialize(CompoundTag& nbt) const override;
+};
+
 void registerActorRideEventHooks();
 void unregisterActorRideEventHooks();
 

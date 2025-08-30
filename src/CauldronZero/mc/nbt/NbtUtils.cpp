@@ -5,19 +5,19 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
-#include "mc/nbt/ByteArrayTag.h" // 新增
-#include "mc/nbt/ByteTag.h"      // 新增
+#include "mc/nbt/ByteArrayTag.h" 
+#include "mc/nbt/ByteTag.h"      
 #include "mc/nbt/CompoundTag.h"
-#include "mc/nbt/DoubleTag.h"   // 新增
-#include "mc/nbt/EndTag.h"      // 新增
-#include "mc/nbt/FloatTag.h"    // 新增
-#include "mc/nbt/Int64Tag.h"    // 新增
-#include "mc/nbt/IntArrayTag.h" // 新增
-#include "mc/nbt/IntTag.h"      // 新增
-#include "mc/nbt/ListTag.h"     // 新增
-#include "mc/nbt/ShortTag.h"    // 新增
-#include "mc/nbt/StringTag.h"   // 新增
-#include "mc/nbt/Tag.h"         // 新增，因为getTag和setTag会用到Tag基类
+#include "mc/nbt/DoubleTag.h"   
+#include "mc/nbt/EndTag.h"      
+#include "mc/nbt/FloatTag.h"    
+#include "mc/nbt/Int64Tag.h"    
+#include "mc/nbt/IntArrayTag.h" 
+#include "mc/nbt/IntTag.h"      
+#include "mc/nbt/ListTag.h"     
+#include "mc/nbt/ShortTag.h"    
+#include "mc/nbt/StringTag.h"   
+#include "mc/nbt/Tag.h"        
 #include "mc/platform/UUID.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/world/level/Level.h"
@@ -30,9 +30,9 @@
 #include "mc/world/item/ItemStack.h"
 
 namespace CauldronZero::NbtUtils {
-DBStorage*                                                  dbStorage;      // 添加 dbStorage 的定义
+DBStorage*                                                  dbStorage;      
 std::unordered_map<mce::UUID, std::unique_ptr<CompoundTag>> playerNbtCache; // 定义玩家NBT缓存
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
     HookPriority::Normal,
     DBStorage,
@@ -164,10 +164,7 @@ bool setTag(CompoundTag* comp, const std::string& key, std::unique_ptr<Tag> tag)
         return false;
     }
 
-    // 使用 CompoundTag::at() 方法进行设置。
-    // CompoundTagVariant 的赋值操作符会处理所有权和类型转换。
-    // 这里需要根据Tag的实际类型进行赋值，因为CompoundTagVariant的at()返回的是引用
-    // 并且赋值操作符需要一个具体的Tag对象，而不是unique_ptr
+
     switch (tag->getId()) {
     case Tag::Type::Byte:
         comp->at(key) = tag->as<ByteTag>();

@@ -10,21 +10,44 @@
 #include "CauldronZero/events/world/actor/MobTotemRespawnEvent.h"
 #include "CauldronZero/events/world/actor/ProjectileHitEvent.h"
 #include "CauldronZero/events/world/actor/WitherDestroyEvent.h"
+#include "CauldronZero/events/world/actor/ActorPressurePlateTriggerEvent.h" // Added for ActorPressurePlateTriggerEvent
+#include "CauldronZero/events/world/actor/ActorEffectUpdateEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" // Added for PlayerChangeDimensionHook
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerInteractEntityEvent.h"
+#include "CauldronZero/events/world/actor/player/PlayerCompleteUsingItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerArmorStandSwapItemEvent.h"
+#include "CauldronZero/events/world/actor/player/PlayerAttackBlockEvent.h"
 #include "CauldronZero/events/world/actor/ProjectileCreateEvent.h"
 #include "CauldronZero/events/server/ClientLoginEvent.h"
+#include "CauldronZero/events/world/block/BlockFallEvent.h" // Added for BlockFallEvent
 #include "CauldronZero/events/world/block/DragonEggBlockEvent.h"
 #include "CauldronZero/events/world/block/FarmTrampleEvent.h"
-#include "CauldronZero/events/world/block/FireBlockEvent.h"
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
 #include "CauldronZero/events/world/block/LiquidBlockSpread.h"
+#include "CauldronZero/events/world/block/RedstoneUpdateEvent.h" // Added for RedstoneUpdateEvent
+#include "CauldronZero/events/world/WeatherUpdateEvent.h" // Added for WeatherUpdateEvent
+#include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
 #include "CauldronZero/logger.h"
 #include "CauldronZero/test/event.h"
 #include "ll/api/mod/RegisterHelper.h"
+#include "ll/api/Config.h"
+#include <string>
+
+namespace CauldronZero {
+} // namespace CauldronZero
+
+static ll::io::LogLevel logLevelFromString(const std::string& level) {
+    if (level == "Off") return ll::io::LogLevel::Off;
+    if (level == "Fatal") return ll::io::LogLevel::Fatal;
+    if (level == "Error") return ll::io::LogLevel::Error;
+    if (level == "Warn") return ll::io::LogLevel::Warn;
+    if (level == "Info") return ll::io::LogLevel::Info;
+    if (level == "Debug") return ll::io::LogLevel::Debug;
+    if (level == "Trace") return ll::io::LogLevel::Trace;
+    return ll::io::LogLevel::Debug; // 默认值
+}
 
 namespace CauldronZero {
 
@@ -33,162 +56,216 @@ Entry& Entry::getInstance() {
     return instance;
 }
 
+
+bool Entry::load() {
+
+    getSelf().getLogger().debug("Loading...");
+    config.emplace();
+    if (!ll::config::loadConfig(*config, getSelf().getConfigDir() / u8"config.json")) {
+        ll::config::saveConfig(*config, getSelf().getConfigDir() / u8"config.json");
+    }
+    getSelf().getLogger().setLevel(logLevelFromString(config->logLevel));
+
+    CauldronZero::Utils::Papi::registerPlayerExpansion();
+
+    return true;
+}
+
+bool Entry::enable() {
+    getSelf().getLogger().debug("Enabling...");
+     if (config->features.item_frame_attack_hook_enabled) {
+        event::registerFrameBlockattackEventHooks();
+    }
+    if (config->features.item_frame_use_hook_enabled) {
+        event::registerFrameBlockuseEventHooks();
+    }
+    if (config->features.actor_change_dimension_hook_enabled) {
+        event::registerActorChangeDimensionEventHooks();
+    }
+    if (config->features.player_change_dimension_hook_enabled) {
+        event::registerPlayerChangeDimensionHooks();
+    }
+    if (config->features.player_drop_item_hook_enabled) {
+        event::registerPlayerDropItemHooks();
+    }
+    if (config->features.player_interact_entity_hook_enabled) {
+        event::registerPlayerInteractEntityHooks();
+    }
+    if (config->features.explosion_hook_enabled) {
+        event::registerExplosionEventHooks();
+    }
+    if (config->features.player_edit_sign_hook_enabled) {
+        event::registerPlayerEditSignHooks();
+    }
+    if (config->features.farm_trample_hook_enabled) {
+        event::registerFarmTrampleEventHooks();
+    }
+    if (config->features.wither_destroy_hook_enabled) {
+        event::registerWitherDestroyEventHooks();
+    }
+    if (config->features.liquid_spread_hook_enabled) {
+        event::registerLiquidSpreadEventHooks();
+    }
+    if (config->features.dragon_egg_teleport_hook_enabled) {
+        event::registerDragonEggBlockEventHooks();
+    }
+    if (config->features.mob_hurt_effect_hook_enabled) {
+        event::registerMobHurtEffectEventHooks();
+    }
+    if (config->features.projectile_hit_hook_enabled) {
+        event::registerProjectileHitEventHooks();
+    }
+    if (config->features.actor_ride_hook_enabled) {
+        event::registerActorRideEventHooks();
+    }
+    if (config->features.container_item_change_hook_enabled) {
+        event::registerContainerItemChangeEventHooks();
+    }
+    if (config->features.actor_destroy_block_hook_enabled) {
+        event::registerActorDestroyBlockHooks();
+    }
+    if (config->features.mob_totem_respawn_hook_enabled) {
+        event::registerMobTotemRespawnEventHooks();
+    }
+    if (config->features.client_login_hook_enabled) {
+        event::registerClientLoginEventHooks();
+    }
+    if (config->features.player_armor_stand_swap_item_hook_enabled) {
+        event::registerPlayerArmorStandSwapItemHooks();
+    }
+    if (config->features.projectile_create_hook_enabled) {
+        event::registerProjectileCreateHooks();
+    }
+    if (config->features.enable_start_destroy_block_hook_enabled) {
+        event::registerPlayerAttackBlockHooks();
+    }
+    if (config->features.actor_pressure_plate_trigger_hook_enabled) {
+        event::registerActorPressurePlateTriggerEventHooks();
+    }
+    if (config->features.actor_effect_update_hook_enabled) {
+        event::registerActorEffectUpdateEventHooks();
+    }
+    if (config->features.player_complete_using_item_hook_enabled) {
+        event::registerPlayerCompleteUsingItemEventHooks();
+    }
+    if (config->features.weather_update_hook_enabled) {
+        event::registerWeatherUpdateEventHooks();
+    }
+    if (config->features.fire_burn_hook_enabled) {
+        event::registerFireBlockEventHooks();
+    }
+    if (config->features.block_fall_hook_enabled) { // Added for BlockFallEvent
+        event::registerBlockFallEventHooks();
+    }
+    if (config->features.redstone_update_hook_enabled) {
+        event::registerRedstoneUpdateEventHooks();
+    }
+
+event::registerTestEventListeners();
+    return true;
+}
+
+bool Entry::disable() {
+    getSelf().getLogger().debug("Disabling...");
+
+    if (config->features.item_frame_attack_hook_enabled) {
+        event::unregisterFrameBlockattackEventHooks();
+    }
+    if (config->features.item_frame_use_hook_enabled) {
+        event::unregisterFrameBlockuseEventHooks();
+    }
+    if (config->features.actor_change_dimension_hook_enabled) {
+        event::unregisterActorChangeDimensionEventHooks();
+    }
+    if (config->features.player_change_dimension_hook_enabled) {
+        event::unregisterPlayerChangeDimensionHooks();
+    }
+    if (config->features.player_drop_item_hook_enabled) {
+        event::unregisterPlayerDropItemHooks();
+    }
+    if (config->features.player_interact_entity_hook_enabled) {
+        event::unregisterPlayerInteractEntityHooks();
+    }
+    if (config->features.explosion_hook_enabled) {
+        event::unregisterExplosionEventHooks();
+    }
+    if (config->features.player_edit_sign_hook_enabled) {
+        event::unregisterPlayerEditSignHooks();
+    }
+    if (config->features.farm_trample_hook_enabled) {
+        event::unregisterFarmTrampleEventHooks();
+    }
+    if (config->features.wither_destroy_hook_enabled) {
+        event::unregisterWitherDestroyEventHooks();
+    }
+    if (config->features.liquid_spread_hook_enabled) {
+        event::unregisterLiquidSpreadEventHooks();
+    }
+    if (config->features.dragon_egg_teleport_hook_enabled) {
+        event::unregisterDragonEggBlockEventHooks();
+    }
+    if (config->features.mob_hurt_effect_hook_enabled) {
+        event::unregisterMobHurtEffectEventHooks();
+    }
+    if (config->features.projectile_hit_hook_enabled) {
+        event::unregisterProjectileHitEventHooks();
+    }
+    if (config->features.actor_ride_hook_enabled) {
+        event::unregisterActorRideEventHooks();
+    }
+    if (config->features.container_item_change_hook_enabled) {
+        event::unregisterContainerItemChangeEventHooks();
+    }
+    if (config->features.actor_destroy_block_hook_enabled) {
+        event::unregisterActorDestroyBlockHooks();
+    }
+    if (config->features.mob_totem_respawn_hook_enabled) {
+        event::unregisterMobTotemRespawnEventHooks();
+    }
+    if (config->features.client_login_hook_enabled) {
+        event::unregisterClientLoginEventHooks();
+    }
+    if (config->features.player_armor_stand_swap_item_hook_enabled) {
+        event::unregisterPlayerArmorStandSwapItemHooks();
+    }
+    if (config->features.projectile_create_hook_enabled) {
+        event::unregisterProjectileCreateHooks();
+    }
+    if (config->features.enable_start_destroy_block_hook_enabled) {
+        event::unregisterPlayerAttackBlockHooks();
+    }
+    if (config->features.actor_pressure_plate_trigger_hook_enabled) {
+        event::unregisterActorPressurePlateTriggerEventHooks();
+    }
+    if (config->features.actor_effect_update_hook_enabled) {
+        event::unregisterActorEffectUpdateEventHooks();
+    }
+    if (config->features.player_complete_using_item_hook_enabled) {
+        event::unregisterPlayerCompleteUsingItemEventHooks();
+    }
+    if (config->features.weather_update_hook_enabled) {
+        event::unregisterWeatherUpdateEventHooks();
+    }
+    if (config->features.fire_burn_hook_enabled) {
+        event::unregisterFireBlockEventHooks();
+    }
+    if (config->features.block_fall_hook_enabled) { // Added for BlockFallEvent
+        event::unregisterBlockFallEventHooks();
+    }
+    if (config->features.redstone_update_hook_enabled) {
+        event::unregisterRedstoneUpdateEventHooks();
+    }
+    return true;
+}
+
 Entry::Entry() : mSelf(*ll::mod::NativeMod::current()) {}
 
 Entry::~Entry() = default;
 
 ll::mod::NativeMod& Entry::getSelf() const { return mSelf; }
 
-bool Entry::load() {
-    getSelf().getLogger().debug("Loading...");
-    Global::getInstance().load();
-    CauldronZero::Utils::Papi::registerPlayerExpansion();
-    return true;
-}
-
-bool Entry::enable() {
-    getSelf().getLogger().debug("Enabling...");
-    if (Global::getInstance().getConfig().get<bool>("features.fire_spread_control.enabled", true)) {
-        event::registerFireBlockEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.item_frame_attack_hook.enabled", true)) {
-        event::registerFrameBlockattackEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.item_frame_use_hook.enabled", true)) {
-        event::registerFrameBlockuseEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_change_dimension_hook.enabled", true)) {
-        event::registerActorChangeDimensionEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_change_dimension_hook.enabled", true)) {
-        event::registerPlayerChangeDimensionHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_drop_item_hook.enabled", true)) {
-        event::registerPlayerDropItemHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_interact_entity_hook.enabled", true)) {
-        event::registerPlayerInteractEntityHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.explosion_hook.enabled", true)) {
-        event::registerExplosionEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_edit_sign_hook.enabled", true)) {
-        event::registerPlayerEditSignHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.farm_trample_hook.enabled", true)) {
-        event::registerFarmTrampleEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.wither_destroy_hook.enabled", true)) {
-        event::registerWitherDestroyEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.liquid_spread_hook.enabled", true)) {
-        event::registerLiquidSpreadEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.dragon_egg_teleport_hook.enabled", true)) {
-        event::registerDragonEggBlockEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.mob_hurt_effect_hook.enabled", true)) {
-        event::registerMobHurtEffectEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.projectile_hit_hook.enabled", true)) {
-        event::registerProjectileHitEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_ride_hook.enabled", true)) {
-        event::registerActorRideEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.container_item_change_hook.enabled", true)) {
-        event::registerContainerItemChangeEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_destroy_block_hook.enabled", true)) {
-        event::registerActorDestroyBlockHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.mob_totem_respawn_hook.enabled", true)) {
-        event::registerMobTotemRespawnEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
-        event::registerClientLoginEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_armor_stand_swap_item_hook.enabled", true)) {
-        event::registerPlayerArmorStandSwapItemHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.projectile_create_hook.enabled", true)) {
-        event::registerProjectileCreateHooks();
-    }
-//event::registerTestEventListeners();
-    return true;
-}
-
-bool Entry::disable() {
-    getSelf().getLogger().debug("Disabling...");
-    if (Global::getInstance().getConfig().get<bool>("features.fire_spread_control.enabled", true)) {
-        event::unregisterFireBlockEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.item_frame_attack_hook.enabled", true)) {
-        event::unregisterFrameBlockattackEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.item_frame_use_hook.enabled", true)) {
-        event::unregisterFrameBlockuseEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_change_dimension_hook.enabled", true)) {
-        event::unregisterActorChangeDimensionEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_change_dimension_hook.enabled", true)) {
-        event::unregisterPlayerChangeDimensionHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_drop_item_hook.enabled", true)) {
-        event::unregisterPlayerDropItemHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_interact_entity_hook.enabled", true)) {
-        event::unregisterPlayerInteractEntityHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.explosion_hook.enabled", true)) {
-        event::unregisterExplosionEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_edit_sign_hook.enabled", true)) {
-        event::unregisterPlayerEditSignHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.farm_trample_hook.enabled", true)) {
-        event::unregisterFarmTrampleEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.wither_destroy_hook.enabled", true)) {
-        event::unregisterWitherDestroyEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.liquid_spread_hook.enabled", true)) {
-        event::unregisterLiquidSpreadEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.dragon_egg_teleport_hook.enabled", true)) {
-        event::unregisterDragonEggBlockEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.mob_hurt_effect_hook.enabled", true)) {
-        event::unregisterMobHurtEffectEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.projectile_hit_hook.enabled", true)) {
-        event::unregisterProjectileHitEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_ride_hook.enabled", true)) {
-        event::unregisterActorRideEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.container_item_change_hook.enabled", true)) {
-        event::unregisterContainerItemChangeEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.actor_destroy_block_hook.enabled", true)) {
-        event::unregisterActorDestroyBlockHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.mob_totem_respawn_hook.enabled", true)) {
-        event::unregisterMobTotemRespawnEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.client_login_hook.enabled", true)) {
-        event::unregisterClientLoginEventHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.player_armor_stand_swap_item_hook.enabled", true)) {
-        event::unregisterPlayerArmorStandSwapItemHooks();
-    }
-    if (Global::getInstance().getConfig().get<bool>("features.projectile_create_hook.enabled", true)) {
-        event::unregisterProjectileCreateHooks();
-    }
-    return true;
-}
-
 } // namespace CauldronZero
+
+
 
 LL_REGISTER_MOD(CauldronZero::Entry, CauldronZero::Entry::getInstance());

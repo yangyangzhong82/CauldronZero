@@ -30,9 +30,13 @@ struct Config {
         bool actor_pressure_plate_trigger_hook_enabled = true;
         bool actor_effect_update_hook_enabled = true;
         bool player_complete_using_item_hook_enabled = true;
-        bool weather_update_hook_enabled = true; // Added for WeatherUpdateEvent
+        bool weather_update_hook_enabled = true; 
         bool fire_burn_hook_enabled = true;
-        bool block_fall_hook_enabled = true; // Added for BlockFallEvent
+        bool block_fall_hook_enabled = true; 
         bool redstone_update_hook_enabled = true;
+        bool mob_health_change_hook_enabled = true;
+        bool moss_growth_hook_enabled = true; 
+        bool piston_push_hook_enabled = true; 
+        bool liquid_try_spread_hook_enabled = true;
     } features;
 };

@@ -12,6 +12,7 @@
 #include "CauldronZero/events/world/actor/WitherDestroyEvent.h"
 #include "CauldronZero/events/world/actor/ActorPressurePlateTriggerEvent.h" // Added for ActorPressurePlateTriggerEvent
 #include "CauldronZero/events/world/actor/ActorEffectUpdateEvent.h"
+#include "CauldronZero/events/world/actor/MobHealthChangeEvent.h" // Added for MobHealthChangeEvent
 #include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" // Added for PlayerChangeDimensionHook
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
@@ -26,9 +27,12 @@
 #include "CauldronZero/events/world/block/FarmTrampleEvent.h"
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
 #include "CauldronZero/events/world/block/LiquidBlockSpread.h"
+#include "CauldronZero/events/world/block/LiquidBlocktrySpread.h" // Added for LiquidBlockTrySpreadEvent
 #include "CauldronZero/events/world/block/RedstoneUpdateEvent.h" // Added for RedstoneUpdateEvent
 #include "CauldronZero/events/world/WeatherUpdateEvent.h" // Added for WeatherUpdateEvent
 #include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
+#include "CauldronZero/events/world/block/MossGrowthEvent.h" // Added for MossGrowthEvent
+#include "CauldronZero/events/world/block/PistonPushEvent.h" // Added for PistonPushEvent
 #include "CauldronZero/logger.h"
 #include "CauldronZero/test/event.h"
 #include "ll/api/mod/RegisterHelper.h"
@@ -145,6 +149,9 @@ bool Entry::enable() {
     if (config->features.actor_effect_update_hook_enabled) {
         event::registerActorEffectUpdateEventHooks();
     }
+    if (config->features.mob_health_change_hook_enabled) { // Added for MobHealthChangeEvent
+        event::registerMobHealthChangeEventHooks();
+    }
     if (config->features.player_complete_using_item_hook_enabled) {
         event::registerPlayerCompleteUsingItemEventHooks();
     }
@@ -159,6 +166,15 @@ bool Entry::enable() {
     }
     if (config->features.redstone_update_hook_enabled) {
         event::registerRedstoneUpdateEventHooks();
+    }
+    if (config->features.moss_growth_hook_enabled) {
+        event::registerMossGrowthEventHooks();
+    }
+    if (config->features.piston_push_hook_enabled) {
+        event::registerPistonPushEventHooks();
+    }
+    if (config->features.liquid_try_spread_hook_enabled) {
+        event::registerLiquidTrySpreadEventHooks();
     }
 
 event::registerTestEventListeners();
@@ -240,6 +256,9 @@ bool Entry::disable() {
     if (config->features.actor_effect_update_hook_enabled) {
         event::unregisterActorEffectUpdateEventHooks();
     }
+    if (config->features.mob_health_change_hook_enabled) { // Added for MobHealthChangeEvent
+        event::unregisterMobHealthChangeEventHooks();
+    }
     if (config->features.player_complete_using_item_hook_enabled) {
         event::unregisterPlayerCompleteUsingItemEventHooks();
     }
@@ -254,6 +273,15 @@ bool Entry::disable() {
     }
     if (config->features.redstone_update_hook_enabled) {
         event::unregisterRedstoneUpdateEventHooks();
+    }
+    if (config->features.moss_growth_hook_enabled) {
+        event::unregisterMossGrowthEventHooks();
+    }
+    if (config->features.piston_push_hook_enabled) {
+        event::unregisterPistonPushEventHooks();
+    }
+    if (config->features.liquid_try_spread_hook_enabled) {
+        event::unregisterLiquidTrySpreadEventHooks();
     }
     return true;
 }

@@ -100,7 +100,7 @@ LL_TYPE_INSTANCE_HOOK(
                                 if (!beforeEvent.isCancelled()) {
                                     if (!component->mIsFirstTime || !component->mIgnoreFirstUpdate) {
                                         const Block& blockToUpdate = region.getBlock(component->mPos);
-                                        blockToUpdate.getLegacyBlock().onRedstoneUpdate(
+                                        blockToUpdate.getBlockType().onRedstoneUpdate(
                                             region,
                                             component->mPos,
                                             newStrength,
@@ -140,12 +140,8 @@ LL_TYPE_INSTANCE_HOOK(
                         if (!beforeEvent.isCancelled()) {
                             if (!component->mIsFirstTime || !component->mIgnoreFirstUpdate) {
                                 const Block& blockToUpdate = region.getBlock(component->mPos);
-                                blockToUpdate.getLegacyBlock().onRedstoneUpdate(
-                                    region,
-                                    component->mPos,
-                                    newStrength,
-                                    component->mIsFirstTime
-                                );
+                                blockToUpdate.getBlockType()
+                                    .onRedstoneUpdate(region, component->mPos, newStrength, component->mIsFirstTime);
                             }
                             auto afterEvent = RedstoneUpdateAfterEvent(
                                 region,

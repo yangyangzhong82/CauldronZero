@@ -15,14 +15,14 @@
 #include "mc/world/level/Weather.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/BlockLegacy.h"
+#include "mc/world/level/block/BlockType.h"
 #include "mc/world/level/block/BurnOdds.h"
 #include "mc/world/level/block/FireBlock.h"
 
 
-#include "mc/world/level/block/TntBlock.h"
-
+#include "mc/deps/core/math/IRandom.h"
 #include "mc/world/level/block/FlameOdds.h"
+#include "mc/world/level/block/TntBlock.h"
 #include "mc/world/level/block/actor/CampfireBlockActor.h"
 #include "mc/world/level/block/block_events/BlockQueuedTickEvent.h"
 #include "mc/world/level/block/states/BlockState.h"
@@ -40,7 +40,6 @@
 #include <ll/api/event/EventBus.h>
 #include <random>
 #include <string>
-
 
 
 namespace CauldronZero::event {
@@ -101,7 +100,7 @@ LL_TYPE_INSTANCE_HOOK(
 
         // 获取目标方块及其传统方块(Legacy)实例
         const Block&       targetBlock = region.getBlock(pos);
-        const BlockLegacy& legacyBlock = *targetBlock.mLegacyBlock;
+        const BlockType&   legacyBlock = *targetBlock.mBlockType;
 
         // --- 特殊方块处理：蜂箱/蜂巢 ---
         // 1. 蜂箱处理：驱逐蜜蜂后，继续执行燃烧逻辑
@@ -124,7 +123,7 @@ LL_TYPE_INSTANCE_HOOK(
                     region.setBlock(pos, *newTntBlockRef, 3, nullptr, nullptr);
                     auto& tb = region.getBlock(pos);
 
-                    auto& l   = tb.mLegacyBlock;
+                    auto& l   = tb.mBlockType;
                     auto& tnt = static_cast<class TntBlock&>(*l);
                     tnt.destroy(region, pos, tb, nullptr);
                     region.removeBlock(pos);
@@ -136,7 +135,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
 
         // 从随机化器中获取随机数生成器
-        auto& random = randomize.mRandom.get()->mRandom.get().mObject;
+        auto& random = *randomize.mRandom.get();
 
 
         // BurnOdds: 方块被烧毁的几率
@@ -144,7 +143,7 @@ LL_TYPE_INSTANCE_HOOK(
         // FlameOdds: 火焰在该方块上蔓延（生成新火焰）的几率
         auto flameOdds = legacyBlock.mFlameOdds;
 
-        if (random._genRandInt32() % chance < static_cast<uint>(burnOdds)) {
+        if (random.nextInt() % chance < static_cast<uint>(burnOdds)) {
 
             // --- 特殊方块处理：营火 ---
             // 3. 营火处理：如果是营火，则尝试点燃它并直接返回。
@@ -159,7 +158,7 @@ LL_TYPE_INSTANCE_HOOK(
                           && region.getBiome(pos).getTemperature(region, pos) > 0.15f;
 
             // 还有另一个随机熄灭的判定
-            bool randomExtinguish = (random._genRandInt32() % (age + 10)) >= 5;
+            bool randomExtinguish = (random.nextInt() % (age + 10)) >= 5;
 
             if (isRaining || randomExtinguish) {
                 // 如果满足下雨或随机熄灭条件，并且该方块确实是可燃的(BurnOdds > 0)
@@ -181,7 +180,7 @@ LL_TYPE_INSTANCE_HOOK(
 
 
             // 计算新火焰的年龄
-            auto newAge = age + (random._genRandInt32() % 5) / 4;
+            auto newAge = age + (random.nextInt() % 5) / 4;
             if (newAge > 15) {
                 newAge = 15;
             }

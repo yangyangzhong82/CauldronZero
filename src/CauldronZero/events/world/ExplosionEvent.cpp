@@ -8,7 +8,7 @@
 #include "mc/nbt/CompoundTagVariant.h"
 
 #include "mc/world/level/Explosion.h"
-#include "mc\world\level\block\BlockLegacy.h"
+#include "mc\world\level\block/BlockType.h"
 #include <cstddef>
 #include <ll/api/event/Emitter.h>
 #include <ll/api/event/EventBus.h>

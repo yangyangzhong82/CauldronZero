@@ -17,29 +17,25 @@ class LiquidSpreadBeforeEvent final : public ll::event::Cancellable<ll::event::E
 protected:
     BlockSource&    mRegion;
     const BlockPos& mPos;
-    int             mNeighbor;
-    const BlockPos& mFlowFromPos;
-    unsigned char   mFlowFromDirection;
+    int             mDepth;
+    bool            mPreserveExisting;
 
 public:
     constexpr explicit LiquidSpreadBeforeEvent(
         BlockSource&    region,
         const BlockPos& pos,
-        int             neighbor,
-        const BlockPos& flowFromPos,
-        unsigned char   flowFromDirection
+        int             depth,
+        bool            preserveExisting
     )
     : mRegion(region),
       mPos(pos),
-      mNeighbor(neighbor),
-      mFlowFromPos(flowFromPos),
-      mFlowFromDirection(flowFromDirection) {}
+      mDepth(depth),
+      mPreserveExisting(preserveExisting) {}
 
     CZ_API BlockSource&    getRegion() const;
     CZ_API const BlockPos& getPos() const;
-    CZ_API int             getNeighbor() const;
-    CZ_API const BlockPos& getFlowFromPos() const;
-    CZ_API unsigned char   getFlowFromDirection() const;
+    CZ_API int             getDepth() const;
+    CZ_API bool            getPreserveExisting() const;
 
     virtual void serialize(CompoundTag& nbt) const override;
 };
@@ -50,29 +46,25 @@ class LiquidSpreadAfterEvent final : public ll::event::Event {
 protected:
     BlockSource&    mRegion;
     const BlockPos& mPos;
-    int             mNeighbor;
-    const BlockPos& mFlowFromPos;
-    unsigned char   mFlowFromDirection;
+    int             mDepth;
+    bool            mPreserveExisting;
 
 public:
     constexpr explicit LiquidSpreadAfterEvent(
         BlockSource&    region,
         const BlockPos& pos,
-        int             neighbor,
-        const BlockPos& flowFromPos,
-        unsigned char   flowFromDirection
+        int             depth,
+        bool            preserveExisting
     )
     : mRegion(region),
       mPos(pos),
-      mNeighbor(neighbor),
-      mFlowFromPos(flowFromPos),
-      mFlowFromDirection(flowFromDirection) {}
+      mDepth(depth),
+      mPreserveExisting(preserveExisting) {}
 
     CZ_API BlockSource&    getRegion() const;
     CZ_API const BlockPos& getPos() const;
-    CZ_API int             getNeighbor() const;
-    CZ_API const BlockPos& getFlowFromPos() const;
-    CZ_API unsigned char   getFlowFromDirection() const;
+    CZ_API int             getDepth() const;
+    CZ_API bool            getPreserveExisting() const;
 
     virtual void serialize(CompoundTag& nbt) const override;
 };

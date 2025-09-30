@@ -127,7 +127,7 @@ LL_STATIC_HOOK(
         level.broadcastLocalEvent(region, SharedTypes::Legacy::LevelEvent::ParticlesDragonEgg, pos, particleData);
         region.setBlock(
             finalNewPos,
-            BlockTypeRegistry::getDefaultBlockState(VanillaBlockTypeIds::DragonEgg(), true),
+            BlockTypeRegistry::get().getDefaultBlockState(VanillaBlockTypeIds::DragonEgg(), true),
             3 /* BlockUpdateFlag::All */,
             nullptr,
             nullptr

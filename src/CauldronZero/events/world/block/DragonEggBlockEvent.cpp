@@ -11,6 +11,7 @@
 #include "mc/util/Random.h"
 #include "mc/world/level/BlockPos.h"
 #include "mc/world/level/BlockSource.h"
+#include "mc/world/level/block/Block.h"
 #include "mc/world/level/Level.h"
 #include "mc\deps\core\math\Random.h"
 #include "mc\world\events\gameevents\GameEventRegistry.h"
@@ -83,8 +84,8 @@ LL_STATIC_HOOK(
             currentAttemptPos.y += offsetY;
             currentAttemptPos.z += offsetZ;
 
-            if (region.isEmptyBlock(currentAttemptPos.x, currentAttemptPos.y, currentAttemptPos.z)
-                && region.mMaxHeight >= currentAttemptPos.y && region.mMinHeight <= currentAttemptPos.y) {
+            if (region.getBlock(currentAttemptPos).isAir() && region.mMaxHeight >= currentAttemptPos.y
+                ) {
                 newPos        = currentAttemptPos;
                 foundValidPos = true;
                 break;

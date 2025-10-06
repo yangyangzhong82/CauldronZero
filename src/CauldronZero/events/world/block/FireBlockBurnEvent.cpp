@@ -139,9 +139,9 @@ LL_TYPE_INSTANCE_HOOK(
 
 
         // BurnOdds: 方块被烧毁的几率
-        auto burnOdds = legacyBlock.mBurnOdds;
+        auto burnOdds = targetBlock.mDirectData->mBurnOdds;
         // FlameOdds: 火焰在该方块上蔓延（生成新火焰）的几率
-        auto flameOdds = legacyBlock.mFlameOdds;
+        auto flameOdds = targetBlock.mDirectData->mFlameOdds;
 
         if (random.nextInt() % chance < static_cast<uint>(burnOdds)) {
 

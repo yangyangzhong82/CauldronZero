@@ -86,7 +86,14 @@ class ExplosionAfterEventEmitter
 : public ll::event::Emitter<[](auto&&...) { return nullptr; }, CauldronZero::event::ExplosionAfterEvent> {};
 
 
-LL_TYPE_INSTANCE_HOOK(ExplosionHook, ll::memory::HookPriority::Normal, Explosion, &Explosion::explode, bool) {
+LL_TYPE_INSTANCE_HOOK(
+    ExplosionHook,
+    ll::memory::HookPriority::Normal,
+    Explosion,
+    &Explosion::explode,
+    bool,
+    ::IRandom& ranomd
+) {
     try {
         auto& explosion = *this;
         auto  event     = CauldronZero::event::ExplosionBeforeEvent(explosion);
@@ -97,7 +104,7 @@ LL_TYPE_INSTANCE_HOOK(ExplosionHook, ll::memory::HookPriority::Normal, Explosion
             return false;
         }
 
-        auto const result = origin();
+        auto const result = origin(ranomd);
 
         auto afterEvent = CauldronZero::event::ExplosionAfterEvent(explosion);
         ll::event::EventBus::getInstance().publish(afterEvent);
@@ -110,13 +117,13 @@ LL_TYPE_INSTANCE_HOOK(ExplosionHook, ll::memory::HookPriority::Normal, Explosion
             (uintptr_t)e.getExceptionAddress(),
             e.what()
         );
-        return origin();
+        return origin(ranomd);
     } catch (const std::exception& e) {
         logger.warn("ExplosionHook 发生 C++ 异常: {}", e.what());
-        return origin();
+        return origin(ranomd);
     } catch (...) {
         logger.warn("ExplosionHook 发生未知异常！");
-        return origin();
+        return origin(ranomd);
     }
 }
 void registerExplosionEventHooks() { ExplosionHook::hook(); }

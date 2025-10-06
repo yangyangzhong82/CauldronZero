@@ -1,16 +1,18 @@
+#include "CauldronZero/events/server/ClientLoginEvent.h"
+#include "CauldronZero/SEHHandler.h"
+#include "CauldronZero/logger.h"
 #include "ll/api/event/Emitter.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/memory/Hook.h"
 #include "mc/certificates/identity/LegacyMultiplayerToken.h"
+#include "mc/network/connection/DisconnectFailReason.h"
 #include <ll/api/service/Bedrock.h>
 #include <mc/network/ConnectionRequest.h>
 #include <mc/network/NetworkIdentifier.h>
 #include <mc/network/ServerNetworkHandler.h>
 #include <mc/network/packet/LoginPacket.h>
 #include <mc/platform/UUID.h>
-#include "CauldronZero/logger.h"
-#include "CauldronZero/SEHHandler.h"
-#include "CauldronZero/events/server/ClientLoginEvent.h"
+
 
 namespace CauldronZero::event {
 
@@ -19,9 +21,18 @@ const std::string& ClientLoginBeforeEvent::getPlayerName() const { return mPlaye
 
 const NetworkIdentifier& ClientLoginBeforeEvent::getNetworkIdentifier() const { return mNetworkIdentifier; }
 
+std::shared_ptr<LoginPacket> ClientLoginBeforeEvent::getLoginPacket() const { return mLoginPacket; }
+
+
 void ClientLoginBeforeEvent::disconnect(const std::string& message) const {
-    ll::service::getServerNetworkHandler()
-        ->disconnectClient(mNetworkIdentifier, Connection::DisconnectFailReason::Kicked, message, std::nullopt, false);
+    ll::service::getServerNetworkHandler()->disconnectClientWithMessage(
+        mNetworkIdentifier,
+        getLoginPacket()->mSenderSubId,
+        Connection::DisconnectFailReason::Kicked,
+        message,
+        std::nullopt,
+        false
+    );
 }
 
 std::string ClientLoginBeforeEvent::getIp() const { return mNetworkIdentifier.getIPAndPort(); }
@@ -48,24 +59,24 @@ LL_TYPE_INSTANCE_HOOK(
     ServerNetworkHandler,
     &ServerNetworkHandler::$handle,
     void,
-    NetworkIdentifier const&     pSource,
-    std::shared_ptr<LoginPacket> pPacket
+    NetworkIdentifier const&     Source,
+    std::shared_ptr<LoginPacket> Packet
 ) {
     try {
         // 先调用原始函数，确保所有信息都已加载
-        origin(pSource, pPacket);
+        origin(Source, Packet);
 
-        auto* connReq = pPacket->mConnectionRequest.get();
+        auto* connReq = Packet->mConnectionRequest.get();
         if (connReq) {
             auto name = connReq->mLegacyMultiplayerToken->getIdentityName();
 
-       
-            auto event = CauldronZero::event::ClientLoginBeforeEvent(*connReq, name, pSource);
+
+            auto event = CauldronZero::event::ClientLoginBeforeEvent(*connReq, name, Source, Packet);
 
             ll::event::EventBus::getInstance().publish(event);
 
 
-            auto ip             = pSource.getIPAndPort();
+            auto ip             = Source.getIPAndPort();
             auto ServerAuthXuid = connReq->mLegacyMultiplayerToken->getXuid(false);
             auto ClientAuthXuid = connReq->mLegacyMultiplayerToken->getXuid(true);
             auto uuid           = connReq->mLegacyMultiplayerToken->getIdentity().asString();
@@ -87,15 +98,15 @@ LL_TYPE_INSTANCE_HOOK(
             e.getExceptionAddress(),
             e.what()
         );
-        origin(pSource, pPacket); // 返回原始行为
+        origin(Source, Packet); // 返回原始行为
         throw;                    // 重新抛出异常
     } catch (const std::exception& e) {
         logger.error("标准异常在 ClientLoginEventHook::hook 中捕获: {}", e.what());
-        origin(pSource, pPacket); // 返回原始行为
+        origin(Source, Packet); // 返回原始行为
         throw;                    // 重新抛出异常
     } catch (...) {
         logger.error("未知异常在 ClientLoginEventHook::hook 中捕获");
-        origin(pSource, pPacket); // 返回原始行为
+        origin(Source, Packet); // 返回原始行为
         throw;                    // 重新抛出异常
     }
 }

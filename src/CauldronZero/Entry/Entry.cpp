@@ -10,10 +10,10 @@
 #include "CauldronZero/events/world/actor/MobTotemRespawnEvent.h"
 #include "CauldronZero/events/world/actor/ProjectileHitEvent.h"
 #include "CauldronZero/events/world/actor/WitherDestroyEvent.h"
-#include "CauldronZero/events/world/actor/ActorPressurePlateTriggerEvent.h" // Added for ActorPressurePlateTriggerEvent
+#include "CauldronZero/events/world/actor/ActorPressurePlateTriggerEvent.h" 
 #include "CauldronZero/events/world/actor/ActorEffectUpdateEvent.h"
-#include "CauldronZero/events/world/actor/MobHealthChangeEvent.h" // Added for MobHealthChangeEvent
-#include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" // Added for PlayerChangeDimensionHook
+#include "CauldronZero/events/world/actor/MobHealthChangeEvent.h" 
+#include "CauldronZero/events/world/actor/player/PlayerChangeDimensionEvent.h" 
 #include "CauldronZero/events/world/actor/player/PlayerDropItemEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerEditSignEvent.h"
 #include "CauldronZero/events/world/actor/player/PlayerInteractEntityEvent.h"
@@ -22,17 +22,17 @@
 #include "CauldronZero/events/world/actor/player/PlayerAttackBlockEvent.h"
 #include "CauldronZero/events/world/actor/ProjectileCreateEvent.h"
 #include "CauldronZero/events/server/ClientLoginEvent.h"
-#include "CauldronZero/events/world/block/BlockFallEvent.h" // Added for BlockFallEvent
+#include "CauldronZero/events/world/block/BlockFallEvent.h" 
 #include "CauldronZero/events/world/block/DragonEggBlockEvent.h"
 #include "CauldronZero/events/world/block/FarmTrampleEvent.h"
 #include "CauldronZero/events/world/block/ItemFrameBlockEvent.h"
 #include "CauldronZero/events/world/block/LiquidBlockSpread.h"
-#include "CauldronZero/events/world/block/LiquidBlocktrySpread.h" // Added for LiquidBlockTrySpreadEvent
-#include "CauldronZero/events/world/block/RedstoneUpdateEvent.h" // Added for RedstoneUpdateEvent
-#include "CauldronZero/events/world/WeatherUpdateEvent.h" // Added for WeatherUpdateEvent
+#include "CauldronZero/events/world/block/LiquidBlocktrySpread.h" 
+#include "CauldronZero/events/world/block/RedstoneUpdateEvent.h" 
+#include "CauldronZero/events/world/WeatherUpdateEvent.h" 
 #include "CauldronZero/events/world/block/FireBlockBurnEvent.h"
-#include "CauldronZero/events/world/block/MossGrowthEvent.h" // Added for MossGrowthEvent
-#include "CauldronZero/events/world/block/PistonPushEvent.h" // Added for PistonPushEvent
+#include "CauldronZero/events/world/block/MossGrowthEvent.h" 
+#include "CauldronZero/events/world/block/PistonPushEvent.h" 
 #include "CauldronZero/logger.h"
 #include "CauldronZero/test/event.h"
 #include "ll/api/mod/RegisterHelper.h"

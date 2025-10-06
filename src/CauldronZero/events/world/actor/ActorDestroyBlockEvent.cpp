@@ -59,7 +59,7 @@ LL_TYPE_INSTANCE_HOOK(
             // 锁定 WeakRef 获取 StackRefResult
             StackRefResult<::EntityContext> actorContextResult = actorContextWeakRef.lock();
 
-            if (actorContextResult->isValid()) {
+            if (actorContextResult) {
                 // 获取 EntityContext 引用
                 ::EntityContext& entityContext = actorContextResult.value();
                 // 使用 Actor::tryGetFromEntity 获取 Actor 指针

@@ -3,6 +3,7 @@
 #include "CauldronZero/Macros.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/NetworkIdentifier.h"
+#include "mc/network/packet/LoginPacket.h"
 #include "mc/platform/UUID.h"
 #include <ll/api/event/Event.h>
 #include <string>
@@ -14,20 +15,23 @@ protected:
     ConnectionRequest&       mConnectionRequest;
     const std::string        mPlayerName;
     const NetworkIdentifier& mNetworkIdentifier;
-
+    std::shared_ptr<LoginPacket> mLoginPacket;
 public:
-    constexpr explicit ClientLoginBeforeEvent(
+    explicit ClientLoginBeforeEvent(
         ConnectionRequest&       connReq,
         const std::string&       name,
-        const NetworkIdentifier& netId
+        const NetworkIdentifier& netId,
+        std::shared_ptr<LoginPacket> loginPacket
     )
     : mConnectionRequest(connReq),
       mPlayerName(name),
-      mNetworkIdentifier(netId) {}
+      mNetworkIdentifier(netId),
+      mLoginPacket(loginPacket) {}
 
     CZ_API ConnectionRequest& getConnectionRequest() const;
     CZ_API const std::string& getPlayerName() const;
     CZ_API const NetworkIdentifier& getNetworkIdentifier() const;
+    CZ_API std::shared_ptr<LoginPacket> getLoginPacket() const;
 
     CZ_API std::string getIp() const;
     CZ_API std::string getXuid() const;

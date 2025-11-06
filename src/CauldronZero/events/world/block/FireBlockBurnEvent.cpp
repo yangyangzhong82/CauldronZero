@@ -19,27 +19,25 @@
 #include "mc/world/level/block/BurnOdds.h"
 #include "mc/world/level/block/FireBlock.h"
 
-
 #include "mc/deps/core/math/IRandom.h"
+#include "mc/deps/core/math/Random.h"
+#include "mc/util/Randomize.h"
+#include "mc/world/level/block/CampfireBlock.h"
 #include "mc/world/level/block/FlameOdds.h"
 #include "mc/world/level/block/TntBlock.h"
+#include "mc/world/level/block/VanillaStates.h"
+#include "mc/world/level/block/actor/BeehiveBlockActor.h"
 #include "mc/world/level/block/actor/CampfireBlockActor.h"
 #include "mc/world/level/block/block_events/BlockQueuedTickEvent.h"
 #include "mc/world/level/block/states/BlockState.h"
 #include "mc/world/level/block/states/BlockStateInstance.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/level.h"
-#include "mc/world/level/spawn/predicate.h"
 #include "mc/world/level/storage/GameRule.h"
-#include "mc\deps\core\math\Random.h"
-#include "mc\util\Randomize.h"
-#include "mc\world\level\block\CampfireBlock.h"
-#include "mc\world\level\block\actor\BeehiveBlockActor.h"
-#include "mc\world\level\block\states\vanilla_states\VanillaStates.h"
+#include "mc/world/level/block/BlockChangeContext.h"
 #include <chrono>
 #include <ll/api/event/EventBus.h>
 #include <random>
-#include <string>
 
 
 namespace CauldronZero::event {
@@ -93,14 +91,16 @@ LL_TYPE_INSTANCE_HOOK(
     ::BlockPos const& pos,
     int               chance,
     ::Randomize&      randomize,
-    int               age
+    int               age,
+    ::BlockPos const& firePos
+
 ) {
     try {
 
 
         // 获取目标方块及其传统方块(Legacy)实例
-        const Block&       targetBlock = region.getBlock(pos);
-        const BlockType&   legacyBlock = *targetBlock.mBlockType;
+        const Block&     targetBlock = region.getBlock(pos);
+        const BlockType& legacyBlock = *targetBlock.mBlockType;
 
         // --- 特殊方块处理：蜂箱/蜂巢 ---
         // 1. 蜂箱处理：驱逐蜜蜂后，继续执行燃烧逻辑
@@ -120,13 +120,13 @@ LL_TYPE_INSTANCE_HOOK(
                 }
                 auto newTntBlockRef = targetBlock.setState<bool>(*explodeState, true);
                 if (newTntBlockRef) {
-                    region.setBlock(pos, *newTntBlockRef, 3, nullptr, nullptr);
+                    region.setBlock(pos, *newTntBlockRef, 3, nullptr, ::BlockChangeContext{});
                     auto& tb = region.getBlock(pos);
 
                     auto& l   = tb.mBlockType;
                     auto& tnt = static_cast<class TntBlock&>(*l);
                     tnt.destroy(region, pos, tb, nullptr);
-                    region.removeBlock(pos);
+                    region.removeBlock(pos, ::BlockChangeContext{});
                     auto afterEvent = FireBlockBurnAfterEvent(region, pos, chance, randomize, age);
                     ll::event::EventBus::getInstance().publish(afterEvent);
                     return;
@@ -170,7 +170,7 @@ LL_TYPE_INSTANCE_HOOK(
                     if (beforeEvent.isCancelled()) {
                         return;
                     }
-                    region.removeBlock(pos);
+                    region.removeBlock(pos, ::BlockChangeContext{});
                     auto afterEvent = FireBlockBurnAfterEvent(region, pos, chance, randomize, age);
                     ll::event::EventBus::getInstance().publish(afterEvent);
                 }
@@ -201,11 +201,10 @@ LL_TYPE_INSTANCE_HOOK(
                     return;
                 }
                 // 在目标位置设置新的火方块
-                region.setBlock(pos, *newFireBlock, 3, nullptr, nullptr);
+                region.setBlock(pos, *newFireBlock, 3, nullptr, ::BlockChangeContext{});
                 auto afterEvent = FireBlockBurnAfterEvent(region, pos, chance, randomize, age);
                 ll::event::EventBus::getInstance().publish(afterEvent);
             }
-
         }
         // 如果最初的随机判定失败，则不执行任何操作
     } catch (const SEH_Exception& e) {
@@ -215,15 +214,15 @@ LL_TYPE_INSTANCE_HOOK(
             e.getExceptionAddress(),
             e.what()
         );
-        origin(region, pos, chance, randomize, age);
+        origin(region, pos, chance, randomize, age,firePos);
         throw;
     } catch (const std::exception& e) {
         logger.error("在 FireBlockHook 中捕获到标准异常: {}", e.what());
-        origin(region, pos, chance, randomize, age);
+        origin(region, pos, chance, randomize, age, firePos);
         throw;
     } catch (...) {
         logger.error("在 FireBlockHook 中捕获到未知异常");
-        origin(region, pos, chance, randomize, age);
+        origin(region, pos, chance, randomize, age, firePos);
         throw;
     }
 }

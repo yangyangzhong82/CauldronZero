@@ -11,8 +11,9 @@
 #include "mc/util/Random.h"
 #include "mc/world/level/BlockPos.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/block/Block.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/BlockChangeContext.h"
 #include "mc\deps\core\math\Random.h"
 #include "mc\world\events\gameevents\GameEventRegistry.h"
 #include "mc\world\level\block\DragonEggBlock.h"
@@ -131,9 +132,9 @@ LL_STATIC_HOOK(
             BlockTypeRegistry::get().getDefaultBlockState(VanillaBlockTypeIds::DragonEgg(), true),
             3 /* BlockUpdateFlag::All */,
             nullptr,
-            nullptr
+            BlockChangeContext{}
         );
-        region.removeBlock(pos);
+        region.removeBlock(pos, BlockChangeContext{});
 
         auto afterEvent = DragonEggTeleportAfterEvent(region, pos, finalNewPos);
         ll::event::EventBus::getInstance().publish(afterEvent);
